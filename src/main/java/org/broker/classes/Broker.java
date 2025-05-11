@@ -1,6 +1,6 @@
 package org.broker.classes;
 
-import java.util.UUID;
+
 
 public class Broker {
 
@@ -11,9 +11,30 @@ public class Broker {
         this.databaseHandler = new DatabaseHandler();
     }
 
+    public void connectToAccount(String clientId) {
+        databaseHandler.getBalance("balance_" + clientId);
+    }
+
+    public void createNewAccount(String clientId) {
+        initializeClient(clientId);
+    }
+
+    public void accountExists(String clientId) {
+
+    }
+
     // Пример использования метода для создания таблиц клиента
-    public void initializeClient(String clientId) {
+    private void initializeClient(String clientId) {
         databaseHandler.initializeClientTables(clientId);
+    }
+
+    public boolean submitOrder(Order order) {
+        return true;
+    }
+
+    // Проверяет можно ли вообще исполнить такой order
+    private boolean canExecuteOrder(Order order) {
+        return true;
     }
 
     // Пример использования метода для получения баланса клиента
@@ -38,11 +59,6 @@ public class Broker {
     public void updateClientStockQuantity(String clientId, String ticker, int quantity) {
         String tableId = "portfolio_" + clientId;
         databaseHandler.updateStockQuantity(tableId, ticker, quantity);
-    }
-
-    public String generateUniqueString() {
-        // Убираю дефисы из строки потому что sql на них ругается.
-        return UUID.randomUUID().toString().replace("-", "");
     }
 }
 
