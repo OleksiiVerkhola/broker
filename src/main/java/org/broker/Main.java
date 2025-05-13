@@ -29,13 +29,24 @@ public class Main {
 //        // Обновляем количество акций
 //        broker.updateClientStockQuantity(clientId, "AAPL", 75);
 
-        Order order = new Order("AAPL", 10, Order.Side.BUY, Order.OrderType.LIMIT, 10.0, Order.TimeInForce.MARKET_ON_OPEN);
+        Order order_1 = new Order("AAPL", 10, Order.Side.BUY, Order.OrderType.LIMIT, 10.0, Order.TimeInForce.MARKET_ON_OPEN);
+        Order order_2 = new Order("AAPL", 10, Order.Side.BUY, Order.OrderType.LIMIT, 10.0, Order.TimeInForce.GOOD_TILL_CANCELED);
+        Order order_3 = new Order("AAPL", 10, Order.Side.BUY, Order.OrderType.LIMIT, 10.0, Order.TimeInForce.GOOD_TILL_CANCELED);
+        Order order_4 = new Order("AAPL", 10, Order.Side.BUY, Order.OrderType.LIMIT, 10.0, Order.TimeInForce.MARKET_ON_CLOSE);
+
 
         // f9b5ba388b974e9cb83713c03e2ae9f1
         Broker broker = new Broker("f9b5ba388b974e9cb83713c03e2ae9f5", LocalDate.of(1991, 1, 1));
 //        broker.updateClientBalance(100000);
 //        broker.switchToNextSession();
 //
-//        broker.placeOrder(order);
+        broker.placeOrder(order_1);
+        broker.switchToNextSession();
+        broker.placeOrder(order_2);
+        broker.switchToNextSession();
+        broker.placeOrder(order_3);
+        broker.switchToNextSession();
+        broker.placeOrder(order_4);
+        broker.switchToNextSession();
     }
 }

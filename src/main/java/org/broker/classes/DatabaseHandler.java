@@ -3,6 +3,7 @@ package org.broker.classes;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.Properties;
 
 
@@ -55,15 +56,14 @@ public class DatabaseHandler {
         String createOrdersTableSQL = String.format("""
             CREATE TABLE IF NOT EXISTS %s (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            order_date TEXT NOT NULL,
             ticker TEXT NOT NULL,
-            quantity INTEGER NOT NULL,
             side TEXT NOT NULL,           -- BUY / SELL
             order_type TEXT NOT NULL,     -- MARKET, LIMIT, etc.
             time_in_force TEXT NOT NULL,  -- GTC, IOC, etc.
+            quantity INTEGER NOT NULL,
             limit_price REAL,             -- может быть NULL для MARKET-ордеров
-            total_cost REAL,              -- итоговая сумма (включая комиссию)
-            status TEXT DEFAULT 'NEW',    -- статус ордера: NEW, EXECUTED, CANCELLED
-            order_date TEXT NOT NULL      -- только дата: YYYY-MM-DD (например: 2025-05-13)
+            status TEXT DEFAULT 'NEW'    -- статус ордера: NEW, EXECUTED, CANCELLED
             );
         """, ordersTable);
 
@@ -158,6 +158,27 @@ public class DatabaseHandler {
             }
         } catch (SQLException e) {
             System.err.println("Ошибка при обновлении количества акций: " + e.getMessage());
+        }
+    }
+
+    public void saveOrder(String tableId, Order order, LocalDate sessionDate) {
+        String sql = " INSERT INTO " + tableId + " (order_date, ticker, quantity, side, order_type, time_in_force, limit_price) VALUES (?, ?, ?, ?, ?, ?, ?); ";
+        System.out.println(sql);
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, sessionDate.toString());
+            stmt.setString(2, order.getTicker());
+            stmt.setInt(3, order.getQuantity());
+            stmt.setString(4, order.getSide().name());  // Переводим enum в строку
+            stmt.setString(5, order.getOrderType().name());  // Переводим enum в строку
+            stmt.setString(6, order.getTimeInForce().name());  // Переводим enum в строку
+            stmt.setDouble(7, order.getLimitPrice());
+
+            stmt.executeUpdate();  // Выполняем вставку
+
+            System.out.println("Ордер успешно сохранен в таблице");
+        } catch (SQLException e) {
+            System.err.println("Ошибка при сохранении ордера: " + e.getMessage());
         }
     }
 

@@ -11,6 +11,7 @@ public class Broker {
     private DatabaseHandler databaseHandler;
     private String clientId;
     private double brokerCommission = 0.39; // %
+    private LocalDate sessionDate;
 
     public LocalDate getSessionDate() {
         return sessionDate;
@@ -20,7 +21,7 @@ public class Broker {
         this.sessionDate = sessionDate;
     }
 
-    private LocalDate sessionDate;
+
 
     // Конструктор, инициализирующий DatabaseHandler с нужным URL
     public Broker() {
@@ -83,16 +84,19 @@ public class Broker {
 
     public boolean placeOrder(Order order) {
         if (canExecuteOrder(order)) {
+            String tName = "orders_" + this.clientId;
+            System.out.println("Save order in to " + tName);
+            databaseHandler.saveOrder(tName, order, getSessionDate());
             // Покупка по цене открытия выполняем сразу, как только получили ордер
-            if (order.getTimeInForce() == Order.TimeInForce.MARKET_ON_OPEN && order.getSide() == Order.Side.BUY) {
-                // Здесь ещё нужно проверить существует ли такая сессия вообще
-                Market market = new Market();
-                Session s = market.getSession("AAPL", sessionDate);
-                System.out.println(s.getOpen());
-                if (s.getOpen() > 0.0) {
-                    return executeBuyOrder(order);
-                }
-            }
+//            if (order.getTimeInForce() == Order.TimeInForce.MARKET_ON_OPEN && order.getSide() == Order.Side.BUY) {
+//                // Здесь ещё нужно проверить существует ли такая сессия вообще
+//                Market market = new Market();
+//                Session s = market.getSession("AAPL", sessionDate);
+//                System.out.println(s.getOpen());
+//                if (s.getOpen() > 0.0) {
+//                    return executeBuyOrder(order);
+//                }
+//            }
         }
         return true;
     }
