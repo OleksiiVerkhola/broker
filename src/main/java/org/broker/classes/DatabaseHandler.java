@@ -36,6 +36,7 @@ public class DatabaseHandler {
     public void initializeClientTables(String clientId) {
         String portfolioTable = "portfolio_" + clientId;
         String balanceTable = "balance_" + clientId;
+        String ordersTable = "orders_" + clientId;
 
         String createPortfolioTableSQL = String.format("""
             CREATE TABLE IF NOT EXISTS %s (
@@ -51,9 +52,26 @@ public class DatabaseHandler {
             );
         """, balanceTable);
 
+        String createOrdersTableSQL = String.format("""
+            CREATE TABLE IF NOT EXISTS %s (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            ticker TEXT NOT NULL,
+            quantity INTEGER NOT NULL,
+            side TEXT NOT NULL,           -- BUY / SELL
+            order_type TEXT NOT NULL,     -- MARKET, LIMIT, etc.
+            time_in_force TEXT NOT NULL,  -- GTC, IOC, etc.
+            limit_price REAL,             -- может быть NULL для MARKET-ордеров
+            total_cost REAL,              -- итоговая сумма (включая комиссию)
+            status TEXT DEFAULT 'NEW',    -- статус ордера: NEW, EXECUTED, CANCELLED
+            order_date TEXT NOT NULL      -- только дата: YYYY-MM-DD (например: 2025-05-13)
+            );
+        """, ordersTable);
+
+
         try (Connection conn = getConnection(); Statement stmt = conn.createStatement()) {
             stmt.execute(createPortfolioTableSQL);
             stmt.execute(createBalanceTableSQL);
+            stmt.execute(createOrdersTableSQL);
 
             String insertInitialBalanceSQL = String.format("""
                 INSERT OR IGNORE INTO %s (id, balance) VALUES (1, 0.0);
@@ -142,5 +160,23 @@ public class DatabaseHandler {
             System.err.println("Ошибка при обновлении количества акций: " + e.getMessage());
         }
     }
+
+    // Проверка, существует ли таблица в базе данных
+    public boolean tableExists(String tableId) {
+        String sql = "SELECT name FROM sqlite_master WHERE type='table' AND name=?";
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, tableId);
+            ResultSet rs = stmt.executeQuery();
+            return rs.next(); // true, если таблица найдена
+
+        } catch (SQLException e) {
+            System.err.println("Ошибка при проверке существования таблицы: " + e.getMessage());
+            return false;
+        }
+    }
+
 
 }

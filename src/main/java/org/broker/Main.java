@@ -4,6 +4,8 @@ import org.broker.classes.Broker;
 import org.broker.classes.Order;
 import org.broker.classes.Security;
 
+import java.time.LocalDate;
+
 public class Main {
     public static void main(String[] args) {
 //
@@ -27,15 +29,13 @@ public class Main {
 //        // Обновляем количество акций
 //        broker.updateClientStockQuantity(clientId, "AAPL", 75);
 
-        Order order = new Order("AAPL", 100, Order.Side.BUY, Order.OrderType.LIMIT, 10.0, Order.TimeInForce.DAY);
+        Order order = new Order("AAPL", 10, Order.Side.BUY, Order.OrderType.LIMIT, 10.0, Order.TimeInForce.MARKET_ON_OPEN);
 
         // f9b5ba388b974e9cb83713c03e2ae9f1
-        Broker broker = new Broker();
-//        broker.createNewAccount("f9b5ba388b974e9cb83713c03e2ae9f1");
-        broker.connectToAccount("f9b5ba388b974e9cb83713c03e2ae9f1");
-        Security security = new Security();
-        String id = security.generateUniqueString();
-        broker.createNewAccount(id);
-
+        Broker broker = new Broker("f9b5ba388b974e9cb83713c03e2ae9f5", LocalDate.of(1991, 1, 1));
+//        broker.updateClientBalance(100000);
+//        broker.switchToNextSession();
+//
+//        broker.placeOrder(order);
     }
 }
