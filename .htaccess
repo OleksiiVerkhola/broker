@@ -1,0 +1,11 @@
+RewriteEngine On
+
+# Если запрошенный путь не является файлом или директорией
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# И если существует файл с таким же именем + .php
+RewriteCond %{REQUEST_FILENAME}.php -f
+
+# Тогда перенаправляем запрос на файл с расширением .php
+RewriteRule ^(.*)$ $1.php [L]
